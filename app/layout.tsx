@@ -1,17 +1,17 @@
 import type React from "react"
 import type { Metadata } from "next"
-import { Inter } from "next/font/google"
+import { Inter } from 'next/font/google'
 import "./globals.css"
 import { AuthProvider } from "@/contexts/auth-context"
 import { ThemeProvider } from "@/components/theme-provider"
 import { Toaster } from "@/components/ui/toaster"
+import { SidebarProvider } from "@/components/ui/sidebar" // Añadir esta importación
 
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
   title: "CRM Empresarial",
   description: "Sistema de gestión de clientes y análisis de negocio",
-    generator: 'v0.dev'
 }
 
 export default function RootLayout({
@@ -23,14 +23,12 @@ export default function RootLayout({
     <html lang="es">
       <body className={inter.className}>
         <ThemeProvider attribute="class" defaultTheme="light">
-          <AuthProvider>{children}</AuthProvider>
+          <AuthProvider>
+            <SidebarProvider>{children}</SidebarProvider> {/* Añadir SidebarProvider aquí */}
+          </AuthProvider>
           <Toaster />
         </ThemeProvider>
       </body>
     </html>
   )
 }
-
-
-
-import './globals.css'
