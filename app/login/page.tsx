@@ -20,25 +20,29 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setLoading(true)
-    setError("")
+ const handleSubmit = async (e: React.FormEvent) => {
+  e.preventDefault();
+  setLoading(true);
+  setError("");
 
-    try {
-      const success = await login(email, password)
-      if (success) {
-        router.push("/")
-      } else {
-        setError("Credenciales incorrectas. Por favor, inténtalo de nuevo.")
-      }
-    } catch (error) {
-      setError("Error al iniciar sesión. Por favor, inténtalo de nuevo más tarde.")
-      console.error("Login error:", error)
-    } finally {
-      setLoading(false)
+  try {
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+
+    if (error) {
+      setError(error.message || "Credenciales incorrectas. Por favor, inténtalo de nuevo.");
+    } else if (data.user) {
+      router.push("/");
     }
+  } catch (error) {
+    setError("Error al iniciar sesión. Por favor, inténtalo de nuevo más tarde.");
+    console.error("Login error:", error);
+  } finally {
+    setLoading(false);
   }
+};
 
   return (
     <div className="flex min-h-screen w-full items-center justify-center bg-gradient-to-tr from-gray-50 to-gray-100 p-4">
