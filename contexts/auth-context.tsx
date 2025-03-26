@@ -5,7 +5,8 @@ import type React from "react"
 import { createContext, useContext, useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import type { User, Company } from "@/types"
-import { signIn as authSignIn, signOut as authSignOut, getCurrentUser } from "@/lib/auth"
+import { supabase } from "@/lib/supabase"
+import { hasPermission as checkPermission } from "@/lib/auth-utils"
 
 interface AuthContextType {
   user: User | null
@@ -15,6 +16,7 @@ interface AuthContextType {
   login: (email: string, password: string) => Promise<boolean>
   logout: () => Promise<void>
   setCurrentCompany: (company: Company) => void
+  hasPermission: (permission: string) => boolean
 }
 
 const AuthContext = createContext<AuthContextType>({
@@ -25,6 +27,7 @@ const AuthContext = createContext<AuthContextType>({
   login: async () => false,
   logout: async () => {},
   setCurrentCompany: () => {},
+  hasPermission: () => false,
 })
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
@@ -38,12 +41,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     async function loadUser() {
       try {
-        const user = await getCurrentUser()
-        if (user) {
-          setUser(user)
+        // Verificar si hay una sesión activa
+        const { data: { session } } = await supabase.auth.getSession()
+        
+        if (session?.user) {
+          // Obtener datos del usuario desde la tabla users
+          const { data: userData, error: userError } = await supabase
+            .from("users")
+            .select("*")
+            .eq("auth_id", session.user.id)
+            .single()
 
-          // Cargar empresas del usuario
-          // En una implementación real, esto vendría de la API
+          if (userError) throw userError
+          
+          setUser(userData as User)
+
+          // Cargar empresas del usuario (ejemplo simplificado)
           setCompanies([
             {
               id: "1",
@@ -77,12 +90,33 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     loadUser()
   }, [])
 
+  // Función para verificar permisos
+  const hasPermission = (permission: string): boolean => {
+    if (!user) return false
+    return checkPermission(user, permission)
+  }
+
   // Función de login
   const login = async (email: string, password: string) => {
     try {
-      const user = await authSignIn(email, password)
-      if (user) {
-        setUser(user)
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      })
+
+      if (error) throw error
+
+      // Obtener datos adicionales del usuario
+      if (data.user) {
+        const { data: userData, error: userError } = await supabase
+          .from("users")
+          .select("*")
+          .eq("auth_id", data.user.id)
+          .single()
+
+        if (userError) throw userError
+        
+        setUser(userData as User)
 
         // Datos de ejemplo para la demo
         setCompanies([
@@ -112,14 +146,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       return false
     } catch (error) {
       console.error("Login error:", error)
-      return false
+      throw error
     }
   }
 
   // Función de logout
   const logout = async () => {
     try {
-      await authSignOut()
+      await supabase.auth.signOut()
       setUser(null)
       setCompanies([])
       setCurrentCompany(null)
@@ -139,6 +173,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         login,
         logout,
         setCurrentCompany,
+        hasPermission,
       }}
     >
       {children}
@@ -149,4 +184,3 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 export function useAuth() {
   return useContext(AuthContext)
 }
-
