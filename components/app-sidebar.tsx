@@ -33,6 +33,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarSeparator,
+  useSidebar,
 } from "@/components/ui/sidebar"
 import { useAuth } from "@/contexts/auth-context"
 import { PERMISSIONS } from "@/lib/auth-utils"
@@ -40,6 +41,7 @@ import { PERMISSIONS } from "@/lib/auth-utils"
 export function AppSidebar() {
   const pathname = usePathname()
   const { user, hasPermission } = useAuth()
+  const { state } = useSidebar()
 
   // Si no hay usuario autenticado, no mostramos el sidebar
   if (!user) return null
