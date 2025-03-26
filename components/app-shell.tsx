@@ -16,14 +16,18 @@ interface AppShellProps {
 }
 
 export function AppShell({ children, requiredPermission }: AppShellProps) {
-  const { user, loading } = useAuth()
+  const { user, loading, hasPermission } = useAuth()
   const router = useRouter()
 
   useEffect(() => {
     if (!loading && !user) {
       router.push("/login")
     }
-  }, [user, loading, router])
+
+    if (requiredPermission && !loading && user && !hasPermission(requiredPermission)) {
+      router.push("/unauthorized")
+    }
+  }, [user, loading, router, requiredPermission, hasPermission])
 
   if (loading) {
     return (
@@ -53,4 +57,3 @@ export function AppShell({ children, requiredPermission }: AppShellProps) {
     </div>
   )
 }
-
