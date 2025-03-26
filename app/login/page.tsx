@@ -100,30 +100,11 @@ export default function LoginPage() {
               </Button>
             </form>
           </CardContent>
-          <CardFooter className="flex flex-col">
-            <div className="mt-2 text-center text-sm text-muted-foreground">Para demostración, puedes usar:</div>
-            <div className="mt-2 grid grid-cols-2 gap-2 text-center text-xs text-muted-foreground">
-              <div>
-                <div className="font-semibold">Administrador:</div>
-                <div>admin@empresa.com</div>
-              </div>
-              <div>
-                <div className="font-semibold">Técnico:</div>
-                <div>tecnico@empresa.com</div>
-              </div>
-              <div>
-                <div className="font-semibold">Comercial:</div>
-                <div>comercial@empresa.com</div>
-              </div>
-              <div>
-                <div className="font-semibold">Visualizador:</div>
-                <div>viewer@empresa.com</div>
-              </div>
-            </div>
-            <div className="mt-2 text-center text-xs text-muted-foreground">
-              Cualquier contraseña funcionará con estos correos.
-            </div>
-          </CardFooter>
+<CardFooter className="flex flex-col">
+  <div className="mt-2 text-center text-sm text-muted-foreground">
+    Ingresa tus credenciales para acceder al sistema
+  </div>
+</CardFooter>
         </Card>
       </div>
     </div>
